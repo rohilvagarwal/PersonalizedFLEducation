@@ -1,5 +1,7 @@
 import pandas as pd
 from Net import Net
+from torch.utils.data import DataLoader
+from EducationDataset import EducationDataset
 
 input_dim = 8
 hidden_dim = 64
@@ -97,7 +99,7 @@ df['Grade 2016'].fillna(df['Grade 2022'], inplace=True)
 
 #changing categorical data to numbers
 #dictionary to map categories to numerical values
-gradeMapping = {'A': 1, 'B': 2, 'C': 3, 'D': 4, 'F': 5}
+gradeMapping = {'A': 5, 'B': 4, 'C': 3, 'D': 2, 'F': 1}
 
 df['Grade 2022'] = df['Grade 2022'].map(gradeMapping)
 df['Grade 2019'] = df['Grade 2019'].map(gradeMapping)
@@ -109,15 +111,50 @@ yesNoMapping = {'NO': 0, 'YES': 1}
 df['Charter School'] = df['Charter School'].map(yesNoMapping)
 df['Title I'] = df['Title I'].map(yesNoMapping)
 
-df.to_csv("SchoolGrades22 PostProcessed.csv", index=False)
+#move dependent variable to end
+dependentVar = 'Mathematics Learning Gains of the Lowest 25%'
+allColumnsExceptDependent = [col for col in df.columns if col != dependentVar]
+newOrder = allColumnsExceptDependent + [dependentVar]
+df = df[newOrder]
 
 #Split dataframe into separate districts
-dfDistrict1 = df[df['Florida District Number'] == 1]
-dfDistrict2 = df[df['Florida District Number'] == 2]
-dfDistrict3 = df[df['Florida District Number'] == 3]
-dfDistrict4 = df[df['Florida District Number'] == 4]
-dfDistrict5 = df[df['Florida District Number'] == 5]
-dfDistrict6 = df[df['Florida District Number'] == 6]
-dfDistrict7 = df[df['Florida District Number'] == 7]
+dfDistrict1 = df[df['Florida District Number'] == 1].iloc[:, 1:]
+dfDistrict2 = df[df['Florida District Number'] == 2].iloc[:, 1:]
+dfDistrict3 = df[df['Florida District Number'] == 3].iloc[:, 1:]
+dfDistrict4 = df[df['Florida District Number'] == 4].iloc[:, 1:]
+dfDistrict5 = df[df['Florida District Number'] == 5].iloc[:, 1:]
+dfDistrict6 = df[df['Florida District Number'] == 6].iloc[:, 1:]
+dfDistrict7 = df[df['Florida District Number'] == 7].iloc[:, 1:]
 
-print(df)
+allDistrictDF = [dfDistrict1, dfDistrict2, dfDistrict3, dfDistrict4, dfDistrict5, dfDistrict6, dfDistrict7]
+allDistrictTraining = []
+allDistrictTesting = []
+
+for i in range(len(allDistrictDF)):
+	#randomizing order of data
+	#allDistrictDF[i] = allDistrictDF[i].sample(frac=1).reset_index(drop=True)
+	amtTraining = int(len(allDistrictDF[i]) * 4 / 5)
+
+	allDistrictTraining.append(allDistrictDF[i].iloc[:amtTraining, :-1])
+	allDistrictTesting.append(allDistrictDF[i].iloc[:amtTraining, -1].to_frame())
+
+
+trainingDataset1 = EducationDataset(allDistrictTraining[0])
+testingDataset1 = EducationDataset(allDistrictTesting[0])
+
+train_dataloader = DataLoader(trainingDataset1, batch_size=64, shuffle=True)
+test_dataloader = DataLoader(testingDataset1, batch_size=64, shuffle=True)
+
+#display data
+train_features, train_labels = next(iter(train_dataloader))
+# print(f"Feature batch shape: {train_features.size()}")
+# print(f"Labels batch shape: {train_labels.size()}")
+img = train_features
+label = train_labels
+print(f"Input: {img}")
+print(f"Label: {label}")
+
+df.to_csv("SchoolGrades22 PostProcessed.csv", index=False)
+
+# print(df)
+# print(dfDistrict1)
