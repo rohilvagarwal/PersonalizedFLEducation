@@ -9,8 +9,8 @@ class EducationDataLoader(Dataset):
 		self.dfInput = df.iloc[:, :-1]
 		self.dfOutput = df.iloc[:, -1]
 
-		self.dfInputTensor = torch.tensor(self.dfInput.values)
-		self.dfOutputTensor = torch.tensor(self.dfOutput.values)
+		self.dfInputTensor = torch.tensor(self.dfInput.values, dtype=torch.float)
+		self.dfOutputTensor = torch.tensor(self.dfOutput.values, dtype=torch.float)
 
 	def __len__(self):
 		return len(self.df)

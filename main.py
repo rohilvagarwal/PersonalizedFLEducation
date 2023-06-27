@@ -20,16 +20,6 @@ district7 = DistrictClient(allData.get_district_data(7))
 
 allDistrictDF = [district1, district2, district3, district4, district5, district6, district7]
 
-print(f"Input: {district1.get_train_input_and_output()[0]}")
-print(f"Output: {district1.get_train_input_and_output()[1]}")
-
-input_dim = 12
-hidden_dim = 64
-output_dim = 1
-
-model = NeuralNetworkNet(input_dim, hidden_dim, output_dim)
+district1.train_neural_network()
 
 df.to_csv("SchoolGrades22 PostProcessed.csv", index=False)
-
-# print(df)
-# print(dfDistrict1)
