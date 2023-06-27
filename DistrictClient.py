@@ -52,12 +52,15 @@ class DistrictClient:
 		testInput, testOutput = self.get_test_input_and_output()
 
 		#dimension sizes
-		input_dim = 12
-		hidden_dim = 128
-		output_dim = 1
+		inputDim = 12
+		hiddenLayer1Dim = 64
+		hiddenLayer2Dim = 128
+		hiddenLayer3Dim = 128
+		hiddenLayer4Dim = 64
+		outputDim = 1
 
 		#define neural network and loss/optimizers
-		model = NeuralNetworkNet(input_dim, hidden_dim, output_dim)
+		model = NeuralNetworkNet([inputDim, hiddenLayer1Dim, hiddenLayer2Dim, hiddenLayer3Dim, hiddenLayer4Dim, outputDim])
 		loss_fn = nn.MSELoss()  # Mean Squared Error loss
 		optimizer = optim.Adam(model.parameters(), lr=0.001)
 
