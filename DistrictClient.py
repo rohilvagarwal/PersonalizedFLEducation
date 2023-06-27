@@ -53,7 +53,7 @@ class DistrictClient:
 
 		#dimension sizes
 		input_dim = 12
-		hidden_dim = 144
+		hidden_dim = 128
 		output_dim = 1
 
 		#define neural network and loss/optimizers
@@ -62,7 +62,7 @@ class DistrictClient:
 		optimizer = optim.Adam(model.parameters(), lr=0.001)
 
 		numEpochs = 500
-		batchSize = 10
+		batchSize = 8
 
 		#forward and backward propagation in batches for numEpochs
 		for epoch in range(numEpochs):
