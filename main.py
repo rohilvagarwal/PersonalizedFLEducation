@@ -1,13 +1,7 @@
 import pandas as pd
-from Net import Net
+from NeuralNetworkNet import NeuralNetworkNet
 from torch.utils.data import DataLoader
-from EducationDataset import EducationDataset
-
-input_dim = 8
-hidden_dim = 64
-output_dim = 1
-
-model = Net(input_dim, hidden_dim, output_dim)
+from EducationDataLoader import EducationDataLoader
 
 df = pd.read_excel('SchoolGrades22.xlsx', sheet_name="SG", skiprows=range(4))
 
@@ -127,32 +121,41 @@ dfDistrict6 = df[df['Florida District Number'] == 6].iloc[:, 1:]
 dfDistrict7 = df[df['Florida District Number'] == 7].iloc[:, 1:]
 
 allDistrictDF = [dfDistrict1, dfDistrict2, dfDistrict3, dfDistrict4, dfDistrict5, dfDistrict6, dfDistrict7]
+
 allDistrictTraining = []
 allDistrictTesting = []
 
 for i in range(len(allDistrictDF)):
 	#randomizing order of data
-	#allDistrictDF[i] = allDistrictDF[i].sample(frac=1).reset_index(drop=True)
+	allDistrictDF[i] = allDistrictDF[i].sample(frac=1).reset_index(drop=True)
+
+	#80% training 20% testing
 	amtTraining = int(len(allDistrictDF[i]) * 4 / 5)
 
-	allDistrictTraining.append(allDistrictDF[i].iloc[:amtTraining, :-1])
-	allDistrictTesting.append(allDistrictDF[i].iloc[:amtTraining, -1].to_frame())
+	#Training data is 4/5 of total data - will separate into input and output in dataloader
+	allDistrictTraining.append(allDistrictDF[i].iloc[:amtTraining, :])
+	allDistrictTesting.append(allDistrictDF[i].iloc[amtTraining:, :])
 
-
-trainingDataset1 = EducationDataset(allDistrictTraining[0])
-testingDataset1 = EducationDataset(allDistrictTesting[0])
+#Example of dataloader with data from first district
+trainingDataset1 = EducationDataLoader(allDistrictTraining[0])
+testingDataset1 = EducationDataLoader(allDistrictTesting[0])
 
 train_dataloader = DataLoader(trainingDataset1, batch_size=64, shuffle=True)
 test_dataloader = DataLoader(testingDataset1, batch_size=64, shuffle=True)
 
-#display data
-train_features, train_labels = next(iter(train_dataloader))
+#display training input and output
+trainInput, trainOutput = next(iter(train_dataloader))
 # print(f"Feature batch shape: {train_features.size()}")
 # print(f"Labels batch shape: {train_labels.size()}")
-img = train_features
-label = train_labels
-print(f"Input: {img}")
-print(f"Label: {label}")
+
+print(f"Input: {trainInput}")
+print(f"Output: {trainOutput}")
+
+input_dim = 12
+hidden_dim = 64
+output_dim = 1
+
+model = NeuralNetworkNet(input_dim, hidden_dim, output_dim)
 
 df.to_csv("SchoolGrades22 PostProcessed.csv", index=False)
 

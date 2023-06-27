@@ -2,7 +2,7 @@ import pandas as pd
 import torch
 from torch.utils.data import Dataset
 
-class EducationDataset(Dataset):
+class EducationDataLoader(Dataset):
 	def __init__(self, df):
 		self.df = df
 
@@ -17,4 +17,3 @@ class EducationDataset(Dataset):
 
 	def __getitem__(self, idx): #used in indexing
 		return self.dfInputTensor[idx], self.dfOutputTensor[idx]
-

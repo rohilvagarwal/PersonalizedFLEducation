@@ -2,9 +2,9 @@ import torch
 from torch import nn
 import torch.nn.functional as F
 
-class Net(nn.Module):
+class NeuralNetworkNet(nn.Module):
     def __init__(self, dim_in, dim_hidden, dim_out):
-        super(Net, self).__init__()
+        super(NeuralNetworkNet, self).__init__()
         self.layer_input = nn.Linear(dim_in, dim_hidden)
         self.relu = nn.ReLU()
         self.dropout = nn.Dropout()
