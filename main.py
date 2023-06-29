@@ -7,7 +7,7 @@ from EducationDataLoader import EducationDataLoader
 
 df = pd.read_excel('SchoolGrades22.xlsx', sheet_name="SG", skiprows=range(4))
 
-allData = DataPreprocessing(df)
+allData = DataPreprocessing(df, "Mathematics Achievement")
 df = allData.get_condensed_data()
 
 district1 = DistrictClient(allData.get_district_data(1))
@@ -20,6 +20,7 @@ district7 = DistrictClient(allData.get_district_data(7))
 
 allDistrictDF = [district1, district2, district3, district4, district5, district6, district7]
 
-district1.train_neural_network()
+#district1.train_neural_network()
+allDataNoDistrict = DistrictClient(df.iloc[:, 1:]).train_neural_network()
 
 df.to_csv("SchoolGrades22 PostProcessed.csv", index=False)

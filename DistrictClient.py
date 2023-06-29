@@ -8,6 +8,9 @@ import torch.optim as optim
 import numpy as np
 from sklearn.metrics import r2_score
 
+torch.manual_seed(42)
+
+
 class DistrictClient:
 	def __init__(self, data):
 		self.data = data
@@ -17,8 +20,11 @@ class DistrictClient:
 
 		self.split_train_and_test()
 
-		self.trainDataLoader = DataLoader(EducationDataLoader(self.trainingData), batch_size=64, shuffle=True)
-		self.testDataLoader = DataLoader(EducationDataLoader(self.testingData), batch_size=64, shuffle=True)
+		self.numEpochs = 500
+		self.batch_size = 64
+
+		self.trainDataLoader = DataLoader(EducationDataLoader(self.trainingData), batch_size=self.batch_size, shuffle=True)
+		self.testDataLoader = DataLoader(EducationDataLoader(self.testingData), batch_size=self.batch_size, shuffle=True)
 
 	def get_data(self):
 		return self.data
@@ -28,8 +34,7 @@ class DistrictClient:
 
 	def split_train_and_test(self):
 		#randomizing order of data
-		self.randomizedData = self.data.sample(frac=1).reset_index(drop=True)
-		#self.randomizedData = self.data
+		self.randomizedData = self.data.sample(frac=1, random_state=30).reset_index(drop=True)
 
 		#80% training 20% testing
 		amtTraining = int(len(self.randomizedData) * 4 / 5)
@@ -38,21 +43,47 @@ class DistrictClient:
 		self.trainingData = self.randomizedData.iloc[:amtTraining, :]
 		self.testingData = self.randomizedData.iloc[amtTraining:, :]
 
-	def get_train_input_and_output(self):
-		trainInput, trainOutput = next(iter(self.trainDataLoader))
-		return trainInput, trainOutput
-
-	def get_test_input_and_output(self):
-		testInput, testOutput = next(iter(self.testDataLoader))
-		return testInput, testOutput
+	# def get_train_input_and_output(self):
+	# 	trainInput = []
+	# 	trainOutput = []
+	#
+	# 	for batch in self.trainDataLoader:
+	# 		batchInput, batchOutput = batch
+	# 		trainInput.append(batchInput)
+	# 		trainOutput.append(batchOutput)
+	#
+	# 	trainInput = torch.cat(trainInput, dim=0)
+	# 	trainOutput = torch.cat(trainOutput, dim=0)
+	#
+	# 	return trainInput, trainOutput
+	#
+	# def get_test_input_and_output(self):
+	# 	testInput = []
+	# 	testOutput = []
+	#
+	# 	for batch in self.testDataLoader:
+	# 		batchInput, batchOutput = batch
+	# 		testInput.append(batchInput)
+	# 		testOutput.append(batchOutput)
+	#
+	# 	testInput = torch.cat(testInput, dim=0)
+	# 	testOutput = torch.cat(testOutput, dim=0)
+	#
+	# 	return testInput, testOutput
 
 	def train_neural_network(self):
-		#separating training input and output data
-		trainInput, trainOutput = self.get_train_input_and_output()
-		testInput, testOutput = self.get_test_input_and_output()
+		# #separating training input and output data
+		# trainInput, trainOutput = self.get_train_input_and_output()
+		# print(f"Train Input: {trainInput.size()}")
+		# print(f"Train Output: {trainOutput.size()}")
+		#
+		#
+		# testInput, testOutput = self.get_test_input_and_output()
+		# print(f"Test Input: {testInput.size()}")
+		# print(f"Test Output: {testOutput.size()}")
 
 		#dimension sizes
-		inputDim = 12
+		inputDim = self.data.shape[1] - 1
 		hiddenLayer1Dim = 64
 		hiddenLayer2Dim = 128
 		hiddenLayer3Dim = 128
@@ -60,28 +91,38 @@ class DistrictClient:
 		outputDim = 1
 
 		#define neural network and loss/optimizers
-		model = NeuralNetworkNet([inputDim, hiddenLayer1Dim, hiddenLayer2Dim, hiddenLayer3Dim, hiddenLayer4Dim, outputDim])
+		model = NeuralNetworkNet([inputDim, 64, 128, 64, 32, outputDim])
 		loss_fn = nn.MSELoss()  # Mean Squared Error loss
 		optimizer = optim.Adam(model.parameters(), lr=0.001)
 
-		numEpochs = 500
-		batchSize = 8
-
 		#forward and backward propagation in batches for numEpochs
-		for epoch in range(numEpochs):
-			for i in range(0, len(trainInput), batchSize):
-				xBatch = trainInput[i:i + batchSize]
-				yPred = model(xBatch)
-				yBatch = trainOutput[i:i + batchSize]
-				loss = loss_fn(yPred, yBatch)
+		for epoch in range(self.numEpochs):
+			for i, (xBatch, yBatch) in enumerate(self.trainDataLoader):
+				#xBatch = trainInput[i:i + batchSize]
+				yPredToTrain = model(xBatch)
+				#yBatch = trainOutput[i:i + batchSize]
+				loss = loss_fn(yPredToTrain, yBatch)
 				optimizer.zero_grad()
 				loss.backward()
 				optimizer.step()
 
+		testInput = []
+		testOutput = []
+		for batch in self.testDataLoader:
+			batchInput, batchOutput = batch
+			testInput.append(batchInput)
+			testOutput.append(batchOutput)
+		testInput = torch.cat(testInput, dim=0)
+		testOutput = torch.cat(testOutput, dim=0)
+
 		yPred = model(testInput)
 
 		print(yPred)
+		print(yPred.size())
 		print(testOutput)
+		print(testOutput.size())
+
+		print()
 
 		#Calculate Mean Absolute Error (MAE)
 		mae = torch.abs(yPred - testOutput).mean()
