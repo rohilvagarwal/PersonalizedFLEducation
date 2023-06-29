@@ -12,7 +12,7 @@ torch.manual_seed(42)
 
 
 class DistrictClient:
-	def __init__(self, data):
+	def __init__(self, data, initialModel: nn.Module, localEpochs, batchSize, optimizer: str, learningRate):
 		self.data = data
 		self.randomizedData = None
 		self.trainingData = None
@@ -20,17 +20,27 @@ class DistrictClient:
 
 		self.split_train_and_test()
 
-		self.numEpochs = 500
-		self.batch_size = 64
+		self.localModel = initialModel
+		self.numEpochs = localEpochs
+		self.batchSize = batchSize
 
-		self.trainDataLoader = DataLoader(EducationDataLoader(self.trainingData), batch_size=self.batch_size, shuffle=True)
-		self.testDataLoader = DataLoader(EducationDataLoader(self.testingData), batch_size=self.batch_size, shuffle=True)
+		self.optimizer = optimizer
+		self.learningRate = learningRate
 
-	def get_data(self):
+		self.trainDataLoader = DataLoader(EducationDataLoader(self.trainingData), batch_size=self.batchSize, shuffle=True)
+		self.testDataLoader = DataLoader(EducationDataLoader(self.testingData), batch_size=self.batchSize, shuffle=True)
+
+	def get_data(self) -> pd.DataFrame:
 		return self.data
 
 	def get_randomized_data(self):
 		return self.randomizedData
+
+	def get_testingData(self) -> pd.DataFrame:
+		return self.testingData
+
+	def get_model(self):
+		return self.localModel
 
 	def split_train_and_test(self):
 		#randomizing order of data
@@ -82,54 +92,62 @@ class DistrictClient:
 		# print(f"Test Input: {testInput.size()}")
 		# print(f"Test Output: {testOutput.size()}")
 
-		#dimension sizes
-		inputDim = self.data.shape[1] - 1
-		hiddenLayer1Dim = 64
-		hiddenLayer2Dim = 128
-		hiddenLayer3Dim = 128
-		hiddenLayer4Dim = 64
-		outputDim = 1
+		# #dimension sizes
+		# inputDim = self.data.shape[1] - 1
+		# hiddenLayer1Dim = 64
+		# hiddenLayer2Dim = 128
+		# hiddenLayer3Dim = 128
+		# hiddenLayer4Dim = 64
+		# outputDim = 1
 
 		#define neural network and loss/optimizers
-		model = NeuralNetworkNet([inputDim, 64, 128, 64, 32, outputDim])
 		loss_fn = nn.MSELoss()  # Mean Squared Error loss
-		optimizer = optim.Adam(model.parameters(), lr=0.001)
+
+		optimizer = None
+		if self.optimizer == "Adam":
+			optimizer = optim.Adam(self.localModel.parameters(), lr=self.learningRate)
+		else:
+			assert self.optimizer == "Adam", "This optimizer is not supported"
+
 
 		#forward and backward propagation in batches for numEpochs
 		for epoch in range(self.numEpochs):
 			for i, (xBatch, yBatch) in enumerate(self.trainDataLoader):
 				#xBatch = trainInput[i:i + batchSize]
-				yPredToTrain = model(xBatch)
+				yPredToTrain = self.localModel(xBatch)
 				#yBatch = trainOutput[i:i + batchSize]
 				loss = loss_fn(yPredToTrain, yBatch)
 				optimizer.zero_grad()
 				loss.backward()
 				optimizer.step()
 
-		testInput = []
-		testOutput = []
-		for batch in self.testDataLoader:
-			batchInput, batchOutput = batch
-			testInput.append(batchInput)
-			testOutput.append(batchOutput)
-		testInput = torch.cat(testInput, dim=0)
-		testOutput = torch.cat(testOutput, dim=0)
+		# testInput = []
+		# testOutput = []
+		# for batch in self.testDataLoader:
+		# 	batchInput, batchOutput = batch
+		# 	testInput.append(batchInput)
+		# 	testOutput.append(batchOutput)
+		# testInput = torch.cat(testInput, dim=0)
+		# testOutput = torch.cat(testOutput, dim=0)
+		#
+		# yPred = self.model(testInput)
+		#
+		# print(yPred)
+		# print(yPred.size())
+		# print(testOutput)
+		# print(testOutput.size())
+		#
+		# print()
+		#
+		# #Calculate Mean Absolute Error (MAE)
+		# mae = torch.abs(yPred - testOutput).mean()
+		# print("Mean Absolute Error:", mae.item())
+		#
+		# #Convert the tensors to numpy arrays
+		# npTestOutput = testOutput.detach().numpy()
+		# npYPred = yPred.detach().numpy()
+		# r2 = r2_score(npTestOutput, npYPred)
+		# print("R^2 Score:", r2)
 
-		yPred = model(testInput)
-
-		print(yPred)
-		print(yPred.size())
-		print(testOutput)
-		print(testOutput.size())
-
-		print()
-
-		#Calculate Mean Absolute Error (MAE)
-		mae = torch.abs(yPred - testOutput).mean()
-		print("Mean Absolute Error:", mae.item())
-
-		#Convert the tensors to numpy arrays
-		npTestOutput = testOutput.detach().numpy()
-		npYPred = yPred.detach().numpy()
-		r2 = r2_score(npTestOutput, npYPred)
-		print("R^2 Score:", r2)
+	def grab_global_model(self, globalModel: nn.Module):
+		self.localModel.load_state_dict(globalModel.state_dict())
