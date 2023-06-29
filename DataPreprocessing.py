@@ -1,8 +1,6 @@
 import pandas as pd
 
-
 def get_district_num(row):
-	#add Florida district number
 	floridaDistrict1Counties = ["CHARLOTTE", "COLLIER", "DESOTO", "GLADES", "HARDEE", "HENDRY", "HIGHLANDS", "LEE", "MANATEE", "OKEECHOBEE",
 								"POLK", "SARASOTA"]
 	floridaDistrict2Counties = ["ALACHUA", "BAKER", "BRADFORD", "CLAY", "COLUMBIA", "DIXIE", "DUVAL", "GILCHRIST", "HAMILTON", "LAFAYETTE",
@@ -118,6 +116,7 @@ class DataPreprocessing:
 		self.condensedData['Grade 2017'] = self.condensedData['Grade 2017'].map(gradeMapping)
 		self.condensedData['Grade 2016'] = self.condensedData['Grade 2016'].map(gradeMapping)
 
+		#mapping no/yes data to 0/1
 		yesNoMapping = {'NO': 0, 'YES': 1}
 		self.condensedData['Charter School'] = self.condensedData['Charter School'].map(yesNoMapping)
 		self.condensedData['Title I'] = self.condensedData['Title I'].map(yesNoMapping)
@@ -141,4 +140,5 @@ class DataPreprocessing:
 		return self.condensedData[self.condensedData['Florida District Number'] == districtNum].iloc[:, 1:]
 
 	def get_condensed_data(self) -> pd.DataFrame:
+		#all schools with district number and deleted unneeded columns / empty rows
 		return self.condensedData

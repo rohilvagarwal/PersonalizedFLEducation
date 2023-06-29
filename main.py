@@ -1,16 +1,13 @@
 import pandas as pd
-from DataPreprocessing import DataPreprocessing
-from DistrictClient import DistrictClient
-from config import Config
-from DataProvider import DataProvider
-from NeuralNetworkNet import NeuralNetworkNet
-from StateServer import StateServer
-from torch.utils.data import DataLoader
-from EducationDataLoader import EducationDataLoader
-import argparse
 import torch
 from torch import nn
+from config import Config
+from DataProvider import DataProvider
+from DistrictClient import DistrictClient
+from NeuralNetworkNet import NeuralNetworkNet
+from StateServer import StateServer
 
+#use gpu if available, otherwise use cpu
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 print(f"Current device for training: {device}")
 
@@ -38,29 +35,32 @@ if __name__ == "__main__":
 	initialModel = model.to(device)
 
 	#Step 4: Initialize Clients
-	clients_list: list[DistrictClient] = [DistrictClient(clientsData[i], initialModel, localEpochs, batchSize, optimizer, learningRate) for i in range(numClients)]
+	clientsList: list[DistrictClient] = [DistrictClient(clientsData[i], initialModel, localEpochs, batchSize, optimizer, learningRate) for i in
+										 range(numClients)]
 
 	#Step 5: Initialize the server
 	#get all testing data in list
-	allTestingDataList: list[pd.DataFrame] = [clients_list[i].get_testingData() for i in range(numClients)]
+	allTestingDataList: list[pd.DataFrame] = [clientsList[i].get_testingData() for i in range(numClients)]
 
 	server = StateServer(initialModel, allTestingDataList, batchSize)
 
 	#Step 6: Build the training procedure
 	allLocalModels: list[nn.Module] = []
 
+	#repeat for aggregatingEpochs
 	for i in range(aggregatingEpochs):
-		for client in clients_list:
+		for client in clientsList:
+			#train local model and append to allLocalModels list
 			client.train_neural_network()
 			allLocalModels.append(client.get_model())
 
-		server.aggregate_models(allLocalModels)  #aggregates model
-		global_model = server.get_globalModel() #gets global model
+		server.aggregate_models(allLocalModels)  #aggregates all local models
+		globalModel = server.get_globalModel()  #gets global model from aggregated local models
 
-		evaluate_result = server.evaluate_model()  #test model
+		evaluateMaeR2 = server.evaluate_model_mae_r2()  #evaluate global model
+		print(f"Epoch {i + 1}:\nMean Absolute Error: {evaluateMaeR2[0]}\nr^2: {evaluateMaeR2[1]}")
+		print()
 
-		for client in clients_list:
-			client.grab_global_model(global_model)
-
-	#district1.train_neural_network()
-	#allDataNoDistrict = DistrictClient(df.iloc[:, 1:]).train_neural_network()
+		#set local model to previous global model
+		for client in clientsList:
+			client.grab_global_model(globalModel)

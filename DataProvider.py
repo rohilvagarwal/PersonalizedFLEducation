@@ -1,6 +1,5 @@
 import pandas as pd
 from DataPreprocessing import DataPreprocessing
-from DistrictClient import DistrictClient
 
 class DataProvider:
 	def __init__(self, dataset: str, numClients: int, dependentVariable: str):
@@ -21,6 +20,7 @@ class DataProvider:
 
 
 	def split_data_to_clients(self) -> list[pd.DataFrame]:
+		#return list with data from each client
 		allClientsList = []
 
 		for i in range(1, self.numClients + 1):
