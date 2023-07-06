@@ -22,33 +22,24 @@ class StateServer:
 		self.globalModel.load_state_dict(globalDict)  #updating global model with new parameters
 
 	def evaluate_model_mae_r2(self):
-		testInput = []
-		testOutput = []
+		testInput = torch.empty(0)
+		testOutput = torch.empty(0)
 
 		#separate input and output in batches
-		for batch in self.allTestDataLoader:
-			batchInput, batchOutput = batch
-			testInput.append(batchInput)
-			testOutput.append(batchOutput)
-
-		#concatenate inputs and outputs into one tensor each
-		testInput = torch.cat(testInput, dim=0)
-		testOutput = torch.cat(testOutput, dim=0)
+		for batchInput, batchOutput in self.allTestDataLoader:
+			testInput = torch.cat((testInput, batchInput), dim=0)
+			testOutput = torch.cat((testOutput, batchOutput), dim=0)
 
 		#predict values with testing data input
 		yPred = self.globalModel(testInput)
 
 		#Calculate Mean Absolute Error (MAE)
 		mae = torch.abs(yPred - testOutput).mean()
-		#print("Mean Absolute Error:", mae.item())
-
-		#Convert the tensors to numpy arrays
-		npTestOutput = testOutput.detach().numpy()
-		npYPred = yPred.detach().numpy()
 
 		#Calculate Coefficient of Determination (r^2)
-		r2 = r2_score(npTestOutput, npYPred)
-		#print("R^2 Score:", r2)
+		sumOfSquaresOfResiduals = torch.sum(torch.square(yPred - testOutput))
+		sumOfSquaresTotal = torch.sum(torch.square(testOutput - torch.mean(testOutput)))
+		r2 = 1 - (sumOfSquaresOfResiduals / sumOfSquaresTotal)
 
 		return mae, r2
 

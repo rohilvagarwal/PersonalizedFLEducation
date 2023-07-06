@@ -1,5 +1,6 @@
 import argparse
 
+
 class Config:
 	def __init__(self) -> None:
 		self.args = self.get_args()
@@ -14,8 +15,8 @@ class Config:
 		parser.add_argument("--aggregatingEpochs", type=int, default=100, help="Total aggregating epochs")
 
 		#model settings
-		parser.add_argument("--localEpochs", type=int, default=500, help="Total local training epochs")
-		parser.add_argument("--batchSize", type=int, default=64, help="Batch size each step")
+		parser.add_argument("--localEpochs", type=int, default=50, help="Total local training epochs")
+		parser.add_argument("--batchSize", type=int, default=128, help="Batch size each step")
 		parser.add_argument("--optimizer", type=str, default="Adam", help="Optimizer on the local side")
 		parser.add_argument("--learningRate", type=float, default=0.001, help="Learning rate on the local side")
 
