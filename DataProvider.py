@@ -1,6 +1,7 @@
 import pandas as pd
 from DataPreprocessing import DataPreprocessing
 
+
 class DataProvider:
 	def __init__(self, dataset: str, numClients: int, dependentVariable: str):
 		self.df = None
@@ -16,8 +17,10 @@ class DataProvider:
 		self.df = self.allData.get_condensed_data()
 		self.df.to_csv("SchoolGrades22 PostProcessed.csv", index=False)
 
-		self.numClients = numClients
-
+		if numClients == 7:
+			self.numClients = numClients
+		else:
+			assert numClients == 7, "Your number of clients is not supported yet!"
 
 	def split_data_to_clients(self) -> list[pd.DataFrame]:
 		#return list with data from each client

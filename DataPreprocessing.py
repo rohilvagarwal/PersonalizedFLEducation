@@ -1,5 +1,6 @@
 import pandas as pd
 
+
 def get_district_num(row):
 	floridaDistrict1Counties = ["CHARLOTTE", "COLLIER", "DESOTO", "GLADES", "HARDEE", "HENDRY", "HIGHLANDS", "LEE", "MANATEE", "OKEECHOBEE",
 								"POLK", "SARASOTA"]
@@ -34,7 +35,7 @@ class DataPreprocessing:
 	def __init__(self, allData: pd.DataFrame, dependentVariable: str):
 		self.allData = allData
 		self.condensedData = allData
-		self.dependentVariable = dependentVariable #Mathematics Achievement, Mathematics Learning Gains, Mathematics Learning Gains of the Lowest 25%
+		self.dependentVariable = dependentVariable  #Mathematics Achievement, Mathematics Learning Gains, Mathematics Learning Gains of the Lowest 25%
 		self.all_preprocessing()
 
 	def add_district_number(self):
@@ -128,6 +129,9 @@ class DataPreprocessing:
 		newOrder = allColumnsExceptDependent + [dependentVar]
 		self.condensedData = self.condensedData[newOrder]
 
+	def order_florida_districts(self):
+		self.condensedData = self.condensedData.sort_values('Florida District Number', ascending=True)
+
 	def all_preprocessing(self):
 		self.add_district_number()
 		self.del_unneeded_columns()
@@ -135,6 +139,8 @@ class DataPreprocessing:
 		self.fill_missing_grades()
 		self.categorical_data_to_num()
 		self.move_output_to_end()
+		self.order_florida_districts()
+		self.condensedData = self.condensedData.reset_index(drop=True)
 
 	def get_district_data(self, districtNum) -> pd.DataFrame:
 		return self.condensedData[self.condensedData['Florida District Number'] == districtNum].iloc[:, 1:]

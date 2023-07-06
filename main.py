@@ -20,7 +20,7 @@ if __name__ == "__main__":
 
 	#Step 2: Prepare dataset and split data amongst clients
 	dataProvider = DataProvider(dataset, numClients, dependentVariable)
-	clientsData: list[pd.DataFrame] = dataProvider.split_data_to_clients()
+	clientsData: list[pd.DataFrame] = dataProvider.split_data_to_clients()  #list of raw data of each district after preprocessing
 	numIndependentVariables = clientsData[0].shape[1] - 1
 
 	#Step 3: Build the initial model

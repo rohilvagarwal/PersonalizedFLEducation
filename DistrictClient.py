@@ -7,6 +7,7 @@ from EducationDataLoader import EducationDataLoader
 
 torch.manual_seed(42)
 
+
 class DistrictClient:
 	def __init__(self, data, initialModel: nn.Module, localEpochs, batchSize, optimizer: str, learningRate):
 		self.data = data
@@ -35,6 +36,7 @@ class DistrictClient:
 	def split_train_and_test(self):
 		#randomizing order of data
 		self.randomizedData = self.data.sample(frac=1, random_state=30).reset_index(drop=True)
+		#self.randomizedData = self.data
 
 		#80% training 20% testing
 		amtTraining = int(len(self.randomizedData) * 4 / 5)
