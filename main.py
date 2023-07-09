@@ -45,10 +45,10 @@ if __name__ == "__main__":
 	server = StateServer(initialModel, allTestingDataList, batchSize)
 
 	#Step 6: Build the training procedure
-	allLocalModels: list[nn.Module] = []
-
 	#repeat for aggregatingEpochs
 	for i in range(aggregatingEpochs):
+		allLocalModels: list[nn.Module] = []
+
 		for client in clientsList:
 			#train local model and append to allLocalModels list
 			client.train_neural_network()

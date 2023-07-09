@@ -22,6 +22,9 @@ class DataProvider:
 		else:
 			assert numClients == 7, "Your number of clients is not supported yet!"
 
+	def get_all_data(self) -> pd.DataFrame:
+		return self.df
+
 	def split_data_to_clients(self) -> list[pd.DataFrame]:
 		#return list with data from each client
 		allClientsList = []
