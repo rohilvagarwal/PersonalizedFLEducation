@@ -1,4 +1,5 @@
 from torch import nn
+import torch
 
 
 class NeuralNetworkNet(nn.Module):
@@ -8,6 +9,7 @@ class NeuralNetworkNet(nn.Module):
 		self.numNodesPerLayer = numNodesPerLayer
 		self.linearActions = nn.ModuleList()
 
+		torch.manual_seed(42)
 		#adding all layer actions based on the number of nodes per layer
 		for x in range(len(numNodesPerLayer) - 1):
 			self.linearActions.append(nn.Linear(numNodesPerLayer[x], numNodesPerLayer[x + 1]))

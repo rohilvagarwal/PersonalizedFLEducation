@@ -15,7 +15,7 @@ if __name__ == "__main__":
 	#Step 1: Set all args
 	args = Config().get_args()
 
-	dataset, dependentVariable, numClients, aggregatingEpochs = args.dataset, args.dependentVariable, args.numClients, args.aggregatingEpochs
+	dataset, dependentVariable, numClients, aggregatingEpochs, globalWeightage = args.dataset, args.dependentVariable, args.numClients, args.aggregatingEpochs, args.globalWeightage
 	localEpochs, batchSize, optimizer, learningRate = args.localEpochs, args.batchSize, args.optimizer, args.learningRate
 
 	#Step 2: Prepare dataset and split data amongst clients
@@ -31,33 +31,45 @@ if __name__ == "__main__":
 	hiddenLayer4Dim = 32
 	outputDim = 1
 
-	model = NeuralNetworkNet([inputDim, hiddenLayer1Dim, hiddenLayer2Dim, hiddenLayer3Dim, hiddenLayer4Dim, outputDim])
-	initialModel = model.to(device)
+	clientsList: list[DistrictClient] = []
 
 	#Step 4: Initialize Clients
-	clientsList: list[DistrictClient] = [DistrictClient(clientsData[i], initialModel, localEpochs, batchSize, optimizer, learningRate) for i in
-										 range(numClients)]
+
+	for i in range(numClients):
+		model = NeuralNetworkNet([inputDim, hiddenLayer1Dim, hiddenLayer2Dim, hiddenLayer3Dim, hiddenLayer4Dim, outputDim])
+		initialModel = model.to(device)
+
+		clientsList.append(DistrictClient(clientsData[i], initialModel, localEpochs, batchSize, optimizer, learningRate))
 
 	#Step 5: Initialize the server
 	#get all testing data in list
 	allTestingDataList: list[pd.DataFrame] = [clientsList[i].get_testingData() for i in range(numClients)]
 
-	server = StateServer(initialModel, allTestingDataList, batchSize)
+	globalModel = NeuralNetworkNet([inputDim, hiddenLayer1Dim, hiddenLayer2Dim, hiddenLayer3Dim, hiddenLayer4Dim, outputDim])
+	globalInitialModel = globalModel.to(device)
+	server = StateServer(globalInitialModel, batchSize, allTestingDataList, True)
 
 	#Step 6: Build the training procedure
 	#repeat for aggregatingEpochs
 	for i in range(aggregatingEpochs):
 		allLocalModels: list[nn.Module] = []
 
+		# for client in clientsList:
+		# 	print(client.get_model().state_dict())
+
 		for client in clientsList:
 			#train local model and append to allLocalModels list
+			#print(client.get_model().state_dict())
 			client.train_neural_network()
+			#print(client.get_model().state_dict())
 			allLocalModels.append(client.get_model())
 
 		server.aggregate_models(allLocalModels)  #aggregates all local models
 		globalModel = server.get_globalModel()  #gets global model from aggregated local models
 
-		evaluateMaeR2 = server.evaluate_model_mae_r2()  #evaluate global model
+		server.personalized_aggregate_models(allLocalModels, globalWeightage)
+
+		evaluateMaeR2 = server.evaluate_personalized_models_mae_r2()  #evaluate global model
 		print(f"Epoch {i + 1}:\nMean Absolute Error: {evaluateMaeR2[0]}\nr^2: {evaluateMaeR2[1]}")
 		print()
 

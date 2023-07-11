@@ -27,6 +27,9 @@ class DistrictClient:
 		self.trainDataLoader = DataLoader(EducationDataLoader(self.trainingData), batch_size=self.batchSize, shuffle=True)
 		self.testDataLoader = DataLoader(EducationDataLoader(self.testingData), batch_size=self.batchSize, shuffle=True)
 
+	def get_trainingData(self) -> pd.DataFrame:
+		return self.trainingData
+
 	def get_testingData(self) -> pd.DataFrame:
 		return self.testingData
 
