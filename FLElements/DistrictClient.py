@@ -3,7 +3,7 @@ import torch
 from torch import nn
 import torch.optim as optim
 from torch.utils.data import DataLoader
-from EducationDataLoader import EducationDataLoader
+from DataTools.EducationDataLoader import EducationDataLoader
 
 torch.manual_seed(42)
 

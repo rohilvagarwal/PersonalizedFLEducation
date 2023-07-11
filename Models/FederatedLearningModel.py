@@ -2,10 +2,10 @@ import pandas as pd
 import torch
 from torch import nn
 from config import Config
-from DataProvider import DataProvider
-from DistrictClient import DistrictClient
-from NeuralNetworkNet import NeuralNetworkNet
-from StateServer import StateServer
+from DataTools.DataProvider import DataProvider
+from FLElements.DistrictClient import DistrictClient
+from FLElements.NeuralNetworkNet import NeuralNetworkNet
+from FLElements.StateServer import StateServer
 
 #use gpu if available, otherwise use cpu
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")

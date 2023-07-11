@@ -2,8 +2,7 @@ import pandas as pd
 import torch
 from torch import nn
 from torch.utils.data import DataLoader
-from EducationDataLoader import EducationDataLoader
-from sklearn.metrics import r2_score
+from DataTools.EducationDataLoader import EducationDataLoader
 
 
 class StateServer:

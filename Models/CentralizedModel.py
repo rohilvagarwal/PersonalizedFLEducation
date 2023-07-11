@@ -2,11 +2,11 @@ import pandas as pd
 import torch
 from torch import nn
 from config import Config
-from DataProvider import DataProvider
-from NeuralNetworkNet import NeuralNetworkNet
+from DataTools.DataProvider import DataProvider
+from FLElements.NeuralNetworkNet import NeuralNetworkNet
 import torch.optim as optim
 from torch.utils.data import DataLoader
-from EducationDataLoader import EducationDataLoader
+from DataTools.EducationDataLoader import EducationDataLoader
 
 torch.manual_seed(42)
 
