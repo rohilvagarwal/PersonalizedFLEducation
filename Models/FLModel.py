@@ -6,6 +6,8 @@ from DataTools.DataProvider import DataProvider
 from FLElements.DistrictClient import DistrictClient
 from FLElements.NeuralNetworkNet import NeuralNetworkNet
 from FLElements.StateServer import StateServer
+import matplotlib.pyplot as plt
+import numpy as np
 
 #use gpu if available, otherwise use cpu
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -51,6 +53,9 @@ if __name__ == "__main__":
 	server = StateServer(globalInitialModel, batchSize, allTestingDataList, False)
 
 	#Step 6: Build the training procedure
+	maeValues = []
+	r2Values = []
+
 	#repeat for aggregatingEpochs
 	for i in range(aggregatingEpochs):
 		allLocalModels: list[nn.Module] = []
@@ -63,10 +68,29 @@ if __name__ == "__main__":
 		server.aggregate_models(allLocalModels)  #aggregates all local models
 		globalModel = server.get_globalModel()  #gets global model from aggregated local models
 
-		evaluateMaeR2 = server.evaluate_model_mae_r2()  #evaluate global model
-		print(f"Epoch {i + 1}:\nMean Absolute Error: {evaluateMaeR2[0]}\nr^2: {evaluateMaeR2[1]}")
+		mae, r2 = server.evaluate_model_mae_r2()  #evaluate global model
+
+		maeValues.append(mae)
+		r2Values.append(r2)
+
+		print(f"Epoch {i + 1}:\nMean Absolute Error: {mae}\nr^2: {r2}")
 		print()
 
 		#set local model to previous global model
 		for client in clientsList:
 			client.grab_global_model(globalModel)
+
+	# Plot test accuracy
+	plt.plot(np.arange(1, aggregatingEpochs + 1), maeValues)
+	plt.title("Mean Absolute Error over Epochs")
+	plt.xlabel("Epochs")
+	plt.ylabel("Mean Absolute Error")
+	plt.ylim(0, 30)
+	plt.show()
+
+	plt.plot(np.arange(1, aggregatingEpochs + 1), r2Values)
+	plt.title("Coefficient of Determination over Epochs")
+	plt.xlabel("Epochs")
+	plt.ylabel("Coefficient of Determination")
+	plt.ylim(0, 1)
+	plt.show()

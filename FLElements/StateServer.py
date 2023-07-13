@@ -84,7 +84,7 @@ class StateServer:
 		sumOfSquaresTotal = torch.sum(torch.square(testOutput - torch.mean(testOutput)))
 		r2 = 1 - (sumOfSquaresOfResiduals / sumOfSquaresTotal)
 
-		return mae, r2
+		return mae.item(), r2.item()
 
 	def get_globalModel(self):
 		return self.globalModel
@@ -112,4 +112,4 @@ class StateServer:
 		sumOfSquaresTotal = torch.sum(torch.square(testOutput - torch.mean(testOutput)))
 		r2 = 1 - (sumOfSquaresOfResiduals / sumOfSquaresTotal)
 
-		return mae, r2
+		return mae.item(), r2.item()

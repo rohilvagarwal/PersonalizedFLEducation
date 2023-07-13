@@ -20,3 +20,4 @@ torch==2.0.1
 torchmetrics==0.11.4
 typing_extensions==4.6.3
 tzdata==2023.3
+matplotlib~=3.7.2
