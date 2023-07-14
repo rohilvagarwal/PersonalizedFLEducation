@@ -84,15 +84,7 @@ if __name__ == "__main__":
 		for client in clientsList:
 			client.grab_global_model(globalModel)
 
-	#write_results_to_excel(maeValues, r2Values, "PersonalizedFLModel")
-
-	data = {'epochs': list(range(1, len(maeValues) + 1)),
-			'MAE': maeValues,
-			'R2': r2Values}
-	df = pd.DataFrame(data)
-	writer = pd.ExcelWriter('../Data/results.xlsx', engine='xlsxwriter')
-	df.to_excel(writer, sheet_name="PersonalizedFLModel", index=False)
-	writer.close()
+	write_results_to_excel(maeValues, r2Values, "PersonalizedFLModel")
 
 	# Plot test accuracy
 	plot_data(aggregatingEpochs, maeValues, "Mean Absolute Error over Epochs", "Epochs", "Mean Absolute Error", 0, 15)
