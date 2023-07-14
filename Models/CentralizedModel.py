@@ -2,7 +2,7 @@ import pandas as pd
 import torch
 from torch import nn
 from config import Config
-from DataTools.DataProvider import DataProvider
+from DataTools.DataProvider import DataProvider, write_results_to_excel, plot_data
 from FLElements.NeuralNetworkNet import NeuralNetworkNet
 import torch.optim as optim
 from torch.utils.data import DataLoader
@@ -55,6 +55,8 @@ if __name__ == "__main__":
 	else:
 		assert optimizer == "Adam", "This optimizer is not supported"
 
+	maeValues = []
+	r2Values = []
 	#forward and backward propagation in batches for numEpochs
 	for epoch in range(numEpochs):
 		for i, (xBatch, yBatch) in enumerate(trainDataLoader):
@@ -64,24 +66,33 @@ if __name__ == "__main__":
 			loss.backward()
 			optimizer.step()
 
-	testInput = torch.empty(0)
-	testOutput = torch.empty(0)
+		testInput = torch.empty(0)
+		testOutput = torch.empty(0)
 
-	#separate input and output in batches
-	for batchInput, batchOutput in testDataLoader:
-		testInput = torch.cat((testInput, batchInput), dim=0)
-		testOutput = torch.cat((testOutput, batchOutput), dim=0)
+		#separate input and output in batches
+		for batchInput, batchOutput in testDataLoader:
+			testInput = torch.cat((testInput, batchInput), dim=0)
+			testOutput = torch.cat((testOutput, batchOutput), dim=0)
 
-	#predict values with testing data input
-	yPred = model(testInput)
+		#predict values with testing data input
+		yPred = model(testInput)
 
-	#Calculate Mean Absolute Error (MAE)
-	mae = torch.abs(yPred - testOutput).mean()
+		#Calculate Mean Absolute Error (MAE)
+		mae = torch.abs(yPred - testOutput).mean()
 
-	#Calculate Coefficient of Determination (r^2)
-	sumOfSquaresOfResiduals = torch.sum(torch.square(yPred - testOutput))
-	sumOfSquaresTotal = torch.sum(torch.square(testOutput - torch.mean(testOutput)))
-	r2 = 1 - (sumOfSquaresOfResiduals / sumOfSquaresTotal)
+		#Calculate Coefficient of Determination (r^2)
+		sumOfSquaresOfResiduals = torch.sum(torch.square(yPred - testOutput))
+		sumOfSquaresTotal = torch.sum(torch.square(testOutput - torch.mean(testOutput)))
+		r2 = 1 - (sumOfSquaresOfResiduals / sumOfSquaresTotal)
 
-	print(f"MAE {mae}")
-	print(f"r2 {r2}")
+		maeValues.append(mae.item())
+		r2Values.append(r2.item())
+
+		print(f"Epoch {epoch + 1}:\nMean Absolute Error: {mae}\nr^2: {r2}")
+		print()
+
+	write_results_to_excel(maeValues, r2Values, "CentralizedModel")
+
+	# Plot test accuracy
+	plot_data(numEpochs, maeValues, "Mean Absolute Error over Epochs", "Epochs", "Mean Absolute Error", 0, 15)
+	plot_data(numEpochs, r2Values, "Coefficient of Determination over Epochs", "Epochs", "Coefficient of Determination", 0, 1)

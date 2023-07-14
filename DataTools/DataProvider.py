@@ -1,6 +1,27 @@
 import pandas as pd
 from DataTools.DataPreprocessing import DataPreprocessing
 import os
+import matplotlib.pyplot as plt
+import numpy as np
+
+
+def write_results_to_excel(listMAE, listR2, sheetName):
+	data = {'Epochs': list(range(1, len(listMAE) + 1)),
+			'MAE': listMAE,
+			'R2': listR2}
+	df = pd.DataFrame(data)
+	writer = pd.ExcelWriter('../Data/results.xlsx', engine='xlsxwriter')
+	df.to_excel(writer, sheet_name=sheetName, index=False)
+	writer.close()
+
+
+def plot_data(aggregatingEpochs, values, title, xLabel, yLabel, yMin, yMax):
+	plt.plot(np.arange(1, aggregatingEpochs + 1), values)
+	plt.title(title)
+	plt.xlabel(xLabel)
+	plt.ylabel(yLabel)
+	plt.ylim(yMin, yMax)
+	plt.show()
 
 
 class DataProvider:
