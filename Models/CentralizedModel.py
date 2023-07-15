@@ -20,6 +20,7 @@ if __name__ == "__main__":
 
 	dataset, dependentVariable, numClients, numEpochs = args.dataset, args.dependentVariable, args.numClients, args.aggregatingEpochs
 	batchSize, optimizer, learningRate = args.batchSize, args.optimizer, args.learningRate
+	hiddenLayer1Dim, hiddenLayer2Dim, hiddenLayer3Dim, hiddenLayer4Dim = args.hiddenLayer1Dim, args.hiddenLayer2Dim, args.hiddenLayer3Dim, args.hiddenLayer4Dim
 
 	#Step 2: Prepare dataset and split data amongst clients
 	dataProvider = DataProvider(dataset, numClients, dependentVariable)
@@ -28,10 +29,6 @@ if __name__ == "__main__":
 
 	#Step 3: Build the initial model
 	inputDim = numIndependentVariables
-	hiddenLayer1Dim = 64
-	hiddenLayer2Dim = 128
-	hiddenLayer3Dim = 64
-	hiddenLayer4Dim = 32
 	outputDim = 1
 
 	model = NeuralNetworkNet([inputDim, hiddenLayer1Dim, hiddenLayer2Dim, hiddenLayer3Dim, hiddenLayer4Dim, outputDim])

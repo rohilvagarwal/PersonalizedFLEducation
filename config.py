@@ -16,10 +16,16 @@ class Config:
 		parser.add_argument("--globalWeightage", type=float, default=0.7, help="Weightage given to global model")
 
 		#model settings
-		parser.add_argument("--localEpochs", type=int, default=7, help="Total local training epochs")
+		parser.add_argument("--localEpochs", type=int, default=3, help="Total local training epochs")
 		parser.add_argument("--batchSize", type=int, default=128, help="Batch size each step")
 		parser.add_argument("--optimizer", type=str, default="Adam", help="Optimizer on the local side")
 		parser.add_argument("--learningRate", type=float, default=0.001, help="Learning rate on the local side")
+
+		#hidden layers
+		parser.add_argument("--hiddenLayer1Dim", type=int, default=32, help="Number of nodes in hidden layer 1")
+		parser.add_argument("--hiddenLayer2Dim", type=int, default=64, help="Number of nodes in hidden layer 2")
+		parser.add_argument("--hiddenLayer3Dim", type=int, default=32, help="Number of nodes in hidden layer 3")
+		parser.add_argument("--hiddenLayer4Dim", type=int, default=16, help="Number of nodes in hidden layer 4")
 
 		args = parser.parse_args()
 		return args

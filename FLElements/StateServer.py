@@ -61,8 +61,6 @@ class StateServer:
 		for i in range(len(self.allPersonalModels)):
 			self.allPersonalModels[i].load_state_dict(listPersonalizedDicts[i])
 
-	#print(listPersonalizedDicts[0])
-
 	def evaluate_model_mae_r2(self):
 		testInput = torch.empty(0)
 		testOutput = torch.empty(0)
