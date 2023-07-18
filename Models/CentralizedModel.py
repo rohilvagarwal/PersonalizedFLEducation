@@ -2,7 +2,7 @@ import pandas as pd
 import torch
 from torch import nn
 from config import Config
-from DataTools.DataProvider import DataProvider, write_results_to_excel, plot_data
+from DataTools.DataProvider import DataProvider, write_evaluation_to_excel, plot_data, write_test_data_to_excel
 from FLElements.NeuralNetworkNet import NeuralNetworkNet
 import torch.optim as optim
 from torch.utils.data import DataLoader
@@ -82,13 +82,16 @@ if __name__ == "__main__":
 		sumOfSquaresTotal = torch.sum(torch.square(testOutput - torch.mean(testOutput)))
 		r2 = 1 - (sumOfSquaresOfResiduals / sumOfSquaresTotal)
 
+		if epoch == numEpochs - 1:
+			write_test_data_to_excel(testOutput, yPred, "CentralizedModel")  #evaluate global model
+
 		maeValues.append(mae.item())
 		r2Values.append(r2.item())
 
 		print(f"Epoch {epoch + 1}:\nMean Absolute Error: {mae}\nr^2: {r2}")
 		print()
 
-	write_results_to_excel(maeValues, r2Values, "CentralizedModel")
+	write_evaluation_to_excel(maeValues, r2Values, "CentralizedModel")
 
 	# Plot test accuracy
 	plot_data(numEpochs, maeValues, "Mean Absolute Error over Epochs", "Epochs", "Mean Absolute Error", 0, 15)

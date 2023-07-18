@@ -3,14 +3,26 @@ from DataTools.DataPreprocessing import DataPreprocessing
 import os
 import matplotlib.pyplot as plt
 import numpy as np
+import torch
 
 
-def write_results_to_excel(listMAE, listR2, sheetName):
+def write_evaluation_to_excel(listMAE, listR2, sheetName):
 	data = {'Epochs': list(range(1, len(listMAE) + 1)),
 			'MAE': listMAE,
 			'R2': listR2}
 	df = pd.DataFrame(data)
 	writer = pd.ExcelWriter('../Data/results.xlsx', engine='xlsxwriter')
+	df.to_excel(writer, sheet_name=sheetName, index=False)
+	writer.close()
+
+
+def write_test_data_to_excel(testOutput, testPredictedOutput, sheetName):
+	testOutputList = testOutput.tolist()
+	testPredictedOutputList = testPredictedOutput.tolist()
+
+	data = {'Test Output': testOutputList, 'Test Predicted Output': testPredictedOutputList}
+	df = pd.DataFrame(data)
+	writer = pd.ExcelWriter('../Data/OutputVsPredicted.xlsx', engine='xlsxwriter')
 	df.to_excel(writer, sheet_name=sheetName, index=False)
 	writer.close()
 

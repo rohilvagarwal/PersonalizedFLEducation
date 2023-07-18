@@ -2,7 +2,7 @@ import pandas as pd
 import torch
 from torch import nn
 from config import Config
-from DataTools.DataProvider import DataProvider, write_results_to_excel, plot_data
+from DataTools.DataProvider import DataProvider, write_evaluation_to_excel, plot_data
 from FLElements.DistrictClient import DistrictClient
 from FLElements.NeuralNetworkNet import NeuralNetworkNet
 from FLElements.StateServer import StateServer
@@ -63,7 +63,10 @@ if __name__ == "__main__":
 		server.aggregate_models(allLocalModels)  #aggregates all local models
 		globalModel = server.get_globalModel()  #gets global model from aggregated local models
 
-		mae, r2 = server.evaluate_model_mae_r2()  #evaluate global model
+		if epoch == aggregatingEpochs - 1:
+			mae, r2 = server.evaluate_federated_model_mae_r2(True)  #evaluate global model
+		else:
+			mae, r2 = server.evaluate_federated_model_mae_r2(False)
 
 		maeValues.append(mae)
 		r2Values.append(r2)
@@ -75,7 +78,7 @@ if __name__ == "__main__":
 		for client in clientsList:
 			client.grab_global_model(globalModel)
 
-	write_results_to_excel(maeValues, r2Values, "FLModel")
+	write_evaluation_to_excel(maeValues, r2Values, "FLModel")
 
 	#Plot test accuracy
 	plot_data(aggregatingEpochs, maeValues, "Mean Absolute Error over Epochs", "Epochs", "Mean Absolute Error", 0, 15)

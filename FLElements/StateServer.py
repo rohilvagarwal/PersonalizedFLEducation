@@ -1,6 +1,7 @@
 import pandas as pd
 import torch
 from torch import nn
+from DataTools.DataProvider import write_test_data_to_excel
 from torch.utils.data import DataLoader
 from DataTools.EducationDataLoader import EducationDataLoader
 from FLElements.NeuralNetworkNet import NeuralNetworkNet
@@ -42,7 +43,7 @@ class StateServer:
 										  dim=0)  #averaging all parameters in each layer
 		self.globalModel.load_state_dict(globalDict)  #updating global model with new parameters
 
-	def personalized_aggregate_models(self, localModelsList: list[nn.Module], globalWeightage):
+	def create_personalized_models(self, localModelsList: list[nn.Module], globalWeightage):
 		globalDict = self.globalModel.state_dict()
 		listLocalDicts = [model.state_dict() for model in localModelsList]
 
@@ -61,7 +62,7 @@ class StateServer:
 		for i in range(len(self.allPersonalModels)):
 			self.allPersonalModels[i].load_state_dict(listPersonalizedDicts[i])
 
-	def evaluate_model_mae_r2(self):
+	def evaluate_federated_model_mae_r2(self, writeToExcel):
 		testInput = torch.empty(0)
 		testOutput = torch.empty(0)
 
@@ -73,6 +74,9 @@ class StateServer:
 
 		#predict values with testing data input
 		yPred = self.globalModel(testInput)
+
+		if writeToExcel:
+			write_test_data_to_excel(testOutput, yPred, "FLModel")
 
 		#Calculate Mean Absolute Error (MAE)
 		mae = torch.abs(yPred - testOutput).mean()
@@ -87,7 +91,7 @@ class StateServer:
 	def get_globalModel(self):
 		return self.globalModel
 
-	def evaluate_personalized_models_mae_r2(self):
+	def evaluate_personalized_models_mae_r2(self, writeToExcel):
 		testOutput = torch.empty(0)
 		yPreds = torch.empty(0)
 
@@ -101,6 +105,9 @@ class StateServer:
 
 			#predict values with testing data input
 			yPreds = torch.cat((yPreds, self.allPersonalModels[i](testInput)))
+
+		if writeToExcel:
+			write_test_data_to_excel(testOutput, yPreds, "PersonalizedFLModel")
 
 		#Calculate Mean Absolute Error (MAE)
 		mae = torch.abs(yPreds - testOutput).mean()
