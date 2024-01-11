@@ -48,10 +48,6 @@ class DataPreprocessing:
 		self.condensedData = self.condensedData.drop('District Name', axis=1)
 		self.condensedData = self.condensedData.drop('School Number', axis=1)
 		self.condensedData = self.condensedData.drop('School Name', axis=1)
-		# self.condensedData = self.condensedData.drop('English Language Arts Achievement', axis=1)
-		# self.condensedData = self.condensedData.drop('English Language Arts Learning Gains', axis=1)
-		# self.condensedData = self.condensedData.drop('English Language Arts Learning Gains of the Lowest 25%', axis=1)
-		# self.condensedData = self.condensedData.drop('Science Achievement', axis=1)
 		self.condensedData = self.condensedData.drop('Social Studies Achievement', axis=1)
 		self.condensedData = self.condensedData.drop('Middle School Acceleration', axis=1)
 		self.condensedData = self.condensedData.drop('Graduation Rate 2020-21', axis=1)
@@ -86,18 +82,19 @@ class DataPreprocessing:
 		#dropping all empty values
 		self.condensedData = self.condensedData.dropna(subset=['Florida District Number'])
 		self.condensedData = self.condensedData.dropna(subset=['Mathematics Achievement'])
+		self.condensedData = self.condensedData.dropna(subset=['English Language Arts Achievement'])
+		self.condensedData = self.condensedData.dropna(subset=['Science Achievement'])
 		self.condensedData = self.condensedData.dropna(subset=['Mathematics Learning Gains'])
+		self.condensedData = self.condensedData.dropna(subset=['English Language Arts Learning Gains'])
+		self.condensedData = self.condensedData.dropna(subset=['English Language Arts Learning Gains of the Lowest 25%'])
 		self.condensedData = self.condensedData.dropna(subset=['Grade 2022'])
+		self.condensedData = self.condensedData.dropna(subset=['Charter School'])
 		self.condensedData = self.condensedData.dropna(subset=['Title I'])
 		self.condensedData = self.condensedData.dropna(subset=['School Type'])
 		self.condensedData = self.condensedData.dropna(subset=['Percent of Minority Students'])
 		self.condensedData = self.condensedData.dropna(subset=['Percent of Economically Disadvantaged Students'])
-		self.condensedData = self.condensedData.dropna(subset=['Mathematics Learning Gains of the Lowest 25%'])
 
-		self.condensedData = self.condensedData.dropna(subset=['English Language Arts Achievement'])
-		self.condensedData = self.condensedData.dropna(subset=['English Language Arts Learning Gains'])
-		self.condensedData = self.condensedData.dropna(subset=['English Language Arts Learning Gains of the Lowest 25%'])
-		self.condensedData = self.condensedData.dropna(subset=['Science Achievement'])
+		self.condensedData = self.condensedData.dropna(subset=['Mathematics Learning Gains of the Lowest 25%'])
 
 	def fill_missing_grades(self):
 		#substituting latest school grade in for previous years if missing
