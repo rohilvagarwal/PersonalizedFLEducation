@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="12842cff-39c4-4674-b012-3d90cd2567a1" name="Changes" comment="write test data and predictions to excel document, changing method names">
+    <list default="true" id="12842cff-39c4-4674-b012-3d90cd2567a1" name="Changes" comment="cleaning up code; adding Charter School to dropna list">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/DataTools/DataPreprocessing.py" beforeDir="false" afterPath="$PROJECT_DIR$/DataTools/DataPreprocessing.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -130,7 +129,14 @@
       <option name="project" value="LOCAL" />
       <updated>1689652053452</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="cleaning up code; adding Charter School to dropna list">
+      <created>1704958244012</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1704958244012</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -148,6 +154,7 @@
     <MESSAGE value="fixed issue in which results.xlsx not being updated" />
     <MESSAGE value="changed model structure and local batch size" />
     <MESSAGE value="write test data and predictions to excel document, changing method names" />
-    <option name="LAST_COMMIT_MESSAGE" value="write test data and predictions to excel document, changing method names" />
+    <MESSAGE value="cleaning up code; adding Charter School to dropna list" />
+    <option name="LAST_COMMIT_MESSAGE" value="cleaning up code; adding Charter School to dropna list" />
   </component>
 </project>
